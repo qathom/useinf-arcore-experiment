@@ -1,0 +1,61 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId "com.test.ar"
+
+        // Sceneform requires minSdkVersion >= 24.
+        minSdkVersion 24
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+    }
+    // Sceneform libraries use language constructs from Java 8.
+    // Add these compile options if targeting minSdkVersion < 26.
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+
+    // Provides ArFragment, and other Sceneform UX resources:
+    implementation "com.google.ar.sceneform.ux:sceneform-ux:1.15.0"
+
+    // Object animation
+    implementation "com.google.ar.sceneform:animation:1.15.0"
+
+    // Use the Sceneform UX Package built from the source files included in the sceneformux folder.
+    //api project(":sceneformux")
+
+    // Alternatively, use ArSceneView without the UX dependency.
+    //implementation "com.google.ar.sceneform:core:1.15.0"
+
+    implementation "com.android.support:appcompat-v7:28.0.0"
+}
+
+apply plugin: 'com.google.ar.sceneform.plugin'
+
+// Imports assets
+sceneform.asset('sampledata/models/vase.gltf',
+        'default',
+        'sampledata/models/vase.sfa',
+        'src/main/res/raw/vase')
+
+sceneform.asset('sampledata/models/teapot.gltf',
+        'default',
+        'sampledata/models/teapot.sfa',
+        'src/main/res/raw/teapot')
+
+sceneform.asset('sampledata/models/owl.fbx',
+        'default',
+        'sampledata/models/owl.sfa',
+        'src/main/res/raw/owl')
