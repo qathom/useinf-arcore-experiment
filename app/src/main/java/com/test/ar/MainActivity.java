@@ -25,12 +25,12 @@ import com.google.ar.core.Plane;
 import com.google.ar.core.TrackingState;
 import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.FrameTime;
+import com.google.ar.sceneform.animation.ModelAnimator;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.AnimationData;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.ux.ArFragment;
 import com.google.ar.sceneform.ux.TransformableNode;
-import com.google.ar.sceneform.animation.ModelAnimator;
 
 import java.util.ArrayList;
 
@@ -95,6 +95,15 @@ public class MainActivity extends AppCompatActivity {
         // Render 3D models
         modelTask = new LoadModelTask();
         modelTask.execute();
+
+        // Hide navigation bar
+        View decorView = getWindow().getDecorView();
+        // Hide both the navigation bar and the status bar.
+        // SYSTEM_UI_FLAG_FULLSCREEN is only available on Android 4.1 and higher, but as
+        // a general rule, you should design your app to hide the status bar whenever you
+        // hide the navigation bar.
+        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
     }
 
     private void onPlayAnimation(ModelRenderable model) {
@@ -190,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         AlertDialog dialog = builder.create();
+
         dialog.show();
     }
 
@@ -223,6 +233,8 @@ public class MainActivity extends AppCompatActivity {
 
             // Distance
             if (closestDistance < thresholdShowModal) {
+                closestNode.select();
+
                 showInfoDialog(closestNode);
 
                 Log.e(TAG, "Sceneform requires OpenGL ES 3.0 later");
