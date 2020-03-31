@@ -35,6 +35,6 @@ public class InfoDialog extends Dialog {
         setContentView(R.layout.dialog_info);
 
         textInfo = (TextView) findViewById(R.id.textInfo);
-        textInfo.setText("Text for: " + text);
+        textInfo.setText(text);
     }
 }
