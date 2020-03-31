@@ -17,13 +17,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.google.ar.core.Anchor;
 import com.google.ar.core.Camera;
 import com.google.ar.core.Frame;
 import com.google.ar.core.HitResult;
 import com.google.ar.core.Plane;
 import com.google.ar.core.TrackingState;
-import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.FrameTime;
 import com.google.ar.sceneform.animation.ModelAnimator;
 import com.google.ar.sceneform.math.Vector3;
@@ -72,8 +70,8 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
+        // AR fragment
         arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
-        nm = new NodeManager(this, arFragment.getArSceneView().getScene());
 
         // Models
         modelManager = new ModelManager(this);
@@ -91,13 +89,20 @@ public class MainActivity extends AppCompatActivity {
             this.nm.deleteAll();
         });
 
-        arFragment.setOnTapArPlaneListener(this::onPlaneTap);
-
         // Render 3D models
         modelTask = new LoadModelTask();
         modelTask.execute();
 
         // Hide navigation bar
+        hideNavigationBar();
+    }
+
+    private void setupAr() {
+        arFragment.setOnTapArPlaneListener(this::onPlaneTap);
+        nm = new NodeManager(this, arFragment);
+    }
+
+    private void hideNavigationBar() {
         View decorView = getWindow().getDecorView();
         // Hide both the navigation bar and the status bar.
         // SYSTEM_UI_FLAG_FULLSCREEN is only available on Android 4.1 and higher, but as
@@ -123,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
                                 "Starting animation %s - %d ms long", data.getName(), data.getDurationMs()));
             }
         } catch (Exception e) {
-            Log.d(TAG,  String.format(
+            Log.d(TAG, String.format(
                     "An error occurred while playing the animation %s", e.getMessage()));
         }
     }
@@ -138,13 +143,8 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        // Create the Anchor.
-        Anchor anchor = hitResult.createAnchor();
-        AnchorNode anchorNode = new AnchorNode(anchor);
-        anchorNode.setParent(arFragment.getArSceneView().getScene());
-
         // Create the transformable andy and add it to the anchor.
-        nm.add(arFragment.getTransformationSystem(), anchorNode, selectedModel);
+        nm.add(arFragment, hitResult, selectedModel);
 
         // Update
         arFragment.getArSceneView().getScene().addOnUpdateListener(this::onUpdate);
@@ -242,7 +242,8 @@ public class MainActivity extends AppCompatActivity {
                     closestDistance = distance;
                     node.getRenderable();
                 }
-            };
+            }
+            ;
 
             if (closestNode == null) {
                 return;
@@ -267,7 +268,9 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
 
         // Remove listener
-        arFragment.setOnTapArPlaneListener(null);
+        if (arFragment != null) {
+            arFragment.setOnTapArPlaneListener(null);
+        }
 
         // Cancel running task(s) to avoid memory leaks
         if (modelTask != null) {
@@ -292,6 +295,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Boolean res) {
             buttonSelectModel.setEnabled(res);
+            // Setup fragment once the models are ready
+            setupAr();
         }
     }
 
