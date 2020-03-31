@@ -21,7 +21,7 @@ public class NodeManager {
     private TransformableNode activeNode;
     private Context context;
     private ArFragment arFragment;
-    private ArrayList<TransformableNode> nodes;
+    private ArrayList<TransformableNode> nodes = new ArrayList<>();
 
     NodeManager(Context ctx, ArFragment arFragment) {
         context = ctx;
