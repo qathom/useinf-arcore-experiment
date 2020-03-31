@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private Button buttonSelectModel;
     private ModelAnimator animator;
     private int nextAnimation;
+    private ArrayList<String> objectVisited = new ArrayList<>();
 
     /**
      * Threshold before showing the modal
@@ -149,9 +150,25 @@ public class MainActivity extends AppCompatActivity {
         arFragment.getArSceneView().getScene().addOnUpdateListener(this::onUpdate);
     }
 
+    private String getContextualText(TransformableNode node) {
+        long count = objectVisited.stream().filter(n -> n.equals(node.getName())).count();
+        String base = node.getName().toUpperCase();
+
+        if (count > 1) {
+            return base + "\n\n" + "Object visited " + count + " times.";
+        }
+
+        return base + "\n\n" + "Visited for the first time.";
+    }
+
     public void showInfoDialog(TransformableNode node) {
+        String text = getContextualText(node);
+
         if (dialog == null) {
-            dialog = new InfoDialog(this, node.getName());
+            // Add in history
+            objectVisited.add(node.getName());
+
+            dialog = new InfoDialog(this, text);
         }
 
         if (dialog.isShowing()) {
@@ -233,11 +250,10 @@ public class MainActivity extends AppCompatActivity {
 
             // Distance
             if (closestDistance < thresholdShowModal) {
+                // Focus object
                 closestNode.select();
 
                 showInfoDialog(closestNode);
-
-                Log.e(TAG, "Sceneform requires OpenGL ES 3.0 later");
 
                 onPlayAnimation(modelManager.get(closestNode.getName()).getModel());
             } else {
@@ -252,8 +268,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Remove listener
         arFragment.setOnTapArPlaneListener(null);
-
-        // Cancel on update
 
         // Cancel running task(s) to avoid memory leaks
         if (modelTask != null) {
