@@ -3,6 +3,7 @@ package com.test.ar;
 import android.app.Activity;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.Window;
 import android.widget.TextView;
 
@@ -16,6 +17,15 @@ public class InfoDialog extends Dialog {
 
         this.activity = act;
         this.text = text;
+
+        // Remove cancelable
+        this.setCancelable(false);
+
+        // Remove background overlay
+        this.getWindow().setDimAmount(0);
+
+        // Bottom position
+        this.getWindow().setGravity(Gravity.BOTTOM);
     }
 
     @Override
