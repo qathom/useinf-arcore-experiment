@@ -294,9 +294,11 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Boolean res) {
-            buttonSelectModel.setEnabled(res);
             // Setup fragment once the models are ready
             setupAr();
+
+            // Enable object selection
+            buttonSelectModel.setEnabled(res);
         }
     }
 
