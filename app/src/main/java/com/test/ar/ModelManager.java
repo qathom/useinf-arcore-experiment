@@ -2,12 +2,11 @@ package com.test.ar;
 
 import android.content.Context;
 import android.util.Log;
-import android.view.Gravity;
-import android.widget.Toast;
 
 import com.google.ar.sceneform.rendering.ModelRenderable;
 
 import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
 
 public class ModelManager {
     private Context context;
@@ -28,10 +27,14 @@ public class ModelManager {
         return modelResources;
     }
 
-    private void build(String resName) {
+    private void setModelRenderable(String id, ModelRenderable model) {
+        models.add(new ModelReference(id, model));
+    }
+
+    public CompletableFuture<Void> buildModel(String resName) {
         int resId = context.getResources().getIdentifier("raw/" + resName, null, context.getPackageName());
 
-        ModelRenderable.builder()
+        return ModelRenderable.builder()
                 .setSource(context, resId)
                 .build()
                 .thenAccept(renderable -> setModelRenderable(resName, renderable))
@@ -50,17 +53,5 @@ public class ModelManager {
         }
 
         return null;
-    }
-
-    private void setModelRenderable(String id, ModelRenderable model) {
-        Log.e("ModelManager", "Adding model: " + model);
-        models.add(new ModelReference(id, model));
-    }
-
-    public void buildAll() {
-        // Models
-        for (String res : modelResources) {
-            build(res);
-        }
     }
 }

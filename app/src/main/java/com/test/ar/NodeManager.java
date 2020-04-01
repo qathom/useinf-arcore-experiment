@@ -1,7 +1,6 @@
 package com.test.ar;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.google.ar.core.Anchor;
 import com.google.ar.core.HitResult;
@@ -18,14 +17,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NodeManager {
-    private TransformableNode activeNode;
     private Context context;
     private ArFragment arFragment;
     private ArrayList<TransformableNode> nodes = new ArrayList<>();
 
-    NodeManager(Context ctx, ArFragment arFragment) {
+    NodeManager(Context ctx, ArFragment fragment) {
         context = ctx;
-        this.arFragment = arFragment;
+        arFragment = fragment;
     }
 
     public void add(ArFragment arFragment, HitResult hitResult, ModelReference modelRef) {
@@ -44,7 +42,6 @@ public class NodeManager {
         node.setOnTapListener((v, event) -> {
             // Update active node
             node.select();
-            this.setActive(node);
         });
         node.select();
 
@@ -52,15 +49,13 @@ public class NodeManager {
         detector.setListener(new NodeListener() {
             @Override
             public void onNodeTouched() {
-                // Set active node
-                setActive(node);
                 node.select();
             }
 
             @Override
             public void onNodeDoubleTap() {
-                // Delete on double tap
-                deleteActive();
+                // Delete from scene
+                arFragment.getArSceneView().getScene().removeChild(node.getParent());
             }
          }
         );
@@ -69,17 +64,6 @@ public class NodeManager {
         nodes.add(node);
 
         node.setOnTouchListener(detector);
-
-        // Set new node as active
-        setActive(node);
-    }
-
-    public void setActive(TransformableNode node) {
-        activeNode = node;
-    }
-
-    public TransformableNode getActive() {
-        return activeNode;
     }
 
     public ArrayList<TransformableNode> getAll() {
@@ -106,21 +90,5 @@ public class NodeManager {
         }
 
         nodes.clear();
-
-        activeNode = null;
-    }
-
-    private void deleteActive() {
-        if (activeNode == null) {
-            return;
-        }
-
-        // Delete from collection
-        nodes.removeIf(n -> n == activeNode);
-
-        // Delete from scene
-        arFragment.getArSceneView().getScene().removeChild(activeNode.getParent());
-
-        activeNode = null;
     }
 }
